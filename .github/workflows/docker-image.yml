@@ -30,4 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: putuwaw/etf-nfa:latest
+          tags: putuwaw/dfa-minimization:latest
