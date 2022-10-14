@@ -7,11 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %} {% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap.min.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}" />
 </head>
 
 <body>
   {% block body%} {% endblock %}
   <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html>
