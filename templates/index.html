@@ -1,5 +1,124 @@
 {% extends "base.html" %}
 {% block title %} DFA Minimization {% endblock %}
 {% block body %}
-    <h1>DFA Minimization</h1>
+<main class="container-lg">
+    <h1 class="fs-3 fw-bold text-center">DFA Minimization</h1>
+    <!-- Form Aplikasi -->
+    <form class="mt-3" action="" method="post">
+        <div class="mb-3">
+            <label for="state" class="form-label">Masukkan Q (state):</label>
+            <input type="text" class="form-control" name="state" id="state" aria-describedby="stateHelp">
+            <div id="stateHelp" class="form-text">Pisahkan dengan tanda koma, contoh: q0, q1, q2</div>
+        </div>
+        <div class="mb-3">
+            <label for="alphabet" class="form-label">Masukkan &Sigma; (alfabet):</label>
+            <input type="text" class="form-control" name="alphabet" id="alphabet" aria-describedby="alphabetHelp">
+            <div id="alphabetHelp" class="form-text">Pisahkan dengan tanda koma, contoh: 0, 1</div>
+        </div>
+        <div class="mb-3">
+            <label for="delta" class="form-label">Masukkan &delta; (fungsi transisi):</label>
+            <textarea class="form-control" name="delta" id="delta" rows="4"
+                placeholder="Contoh:&#10;q1 0 q2&#10;q1 1 q0"></textarea>
+            <div id="deltaHelp" class="form-text">Masukkan dengan format <code>stateAwal alfabet stateAkhir</code>,
+                pisahkan dengan baris baru.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="initial" class="form-label">Masukkan initial state:</label>
+            <input type="text" name="initial" class="form-control" id="initial" aria-describedby="initialHelp">
+            <div id="initialHelp" class="form-text">Contoh: q0</div>
+        </div>
+        <div class="mb-3">
+            <label for="final" class="form-label">Masukkan final state:</label>
+            <input type="text" name="final" class="form-control" id="final" aria-describedby="finalHelp">
+            <div id="finalHelp" class="form-text">Pisahkan dengan tanda koma, contoh: q0, q1</div>
+        </div>
+        <button type="submit" name="calculate" class="btn btn-primary">Sederhanakan</button>
+    </form>
+    <!-- Hasil Kalkulasi -->
+    {% if isSubmit %}
+    <section class="mt-3">
+        <!-- Sebelum diminimisasi -->
+        <section>
+            <h4 class="fs-4 fw-semibold">DFA Sebelum Minimisasi:</h4>
+            <h6 class="fs-5">Diagram transisi:</h6>
+            <!-- Diagram transisi -->
+            <div class="w-100 max-w-3xl p-3">
+                <py-script>
+                    import networkx as nx
+                    import matplotlib.pyplot as plt
+    
+                    G = nx.DiGraph()
+                    G.add_edges_from({{edgeBM}})
+                    pos = nx.planar_layout(G)
+    
+                    color_map =[]
+                    initial = {{initialBM}}
+                    final = {{finalBM}}
+    
+                    for node in G:
+                        if node in initial:
+                            color_map.append('green')
+                        elif node in final:
+                            color_map.append('red')
+                        else:
+                            color_map.append('white')
+    
+                    label_edge = {{edgeLabelBM}}
+    
+                    nx.draw(G, pos, node_size=1000, edgecolors='black', node_color=color_map, with_labels=True)
+                    nx.draw_networkx_edge_labels(G, pos, edge_labels=label_edge, font_color='black')
+                    plt
+                </py-script>
+                <label for="">Keterangan</label>
+                <p>&#128994;: initial state</p>
+                <p>&#128308;: final state</p>
+            </div>
+            <!-- Tabel transisi -->
+            <h6 class="fs-5">Tabel transisi:</h6>
+            <table class="table mt-3 w-25 table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col"> </th>
+                        {%- for a in alphabetBM -%}
+                            <th scope="col">{{a}}</th>
+                        {%- endfor -%}
+                    </tr>
+                </thead>
+                <tbody>
+                    {%- for i in transitionTableBM -%}
+                        <tr> 
+                            {%- for j in range(3) -%}
+                                {% if j % 3 == 0 %}
+                                    <th scope="row">{{i[j]}}</th>
+                                {% else %}
+                                    <td>{{i[j]}}</td>
+                                {% endif %}
+                            {%- endfor -%}
+                        </tr>
+                    {%- endfor -%}
+                </tbody>
+            </table>
+            <!-- Deskripsi detail -->
+            <h6 class="fs-5">Deskripsi detail:</h6>
+            <p class="lead mt-2">Q = {<span>{{", ".join(stateBM)}}</span>},
+                &Sigma; = {<span>{{", ".join(alphabetBM)}}</span>}, 
+                q<sub>0</sub> (start state) = <span>{{",".join(initialBM)}}</span>,
+                F = {<span>{{", ".join(finalBM)}}</span>} (final state), dan
+                &delta; : Q x &Sigma; &rarr; Q dimana
+                <table class="lead">
+                    <tbody>
+                        {%- for i in range(0, detailedDescriptionBM| length, 2) -%}
+                        <tr>
+                            <td>{{"".join(detailedDescriptionBM[i])}}</td>
+                            <td class="ps-3">{{"".join(detailedDescriptionBM[i+1])}}</td>
+                        </tr>
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+            </p>
+        </section>
+    </section>
+    {% endif %}
+</main>
 {% endblock %}
