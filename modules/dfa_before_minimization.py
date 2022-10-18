@@ -20,24 +20,23 @@ def get_edge_label(inputString):
         temp = list(str(i).split(" "))
         # add to edgeSaver
         edgeSaver.append(temp)
+    # solve problem when missing label..
+    # ..when a state can go to another state with
+    # ..two or more alphabets
+    pairEdge = get_edge(inputString)
     labelSaver = []
-    for i in edgeSaver:
-        # temp contains the alphabet
-        temp = i.pop(1)
-        # add temp to labelSaver
-        labelSaver.append(temp)
-    temp = []
-    for i in edgeSaver:
-        # change from list to tuple
-        temp.append(tuple(i))
-    # make nested tuple (2D)
-    tupleEdge = tuple(temp)
-    # make dictionary
-    resultDict = {}
-    # pair the edge with the alphabet
-    for key in tupleEdge:
-        resultDict[key] = labelSaver.pop(0)
-    return resultDict
+    for i in pairEdge:
+        temp = []
+        for j in edgeSaver:
+            if (i[0] == j[0]) and (i[1] == j[2]):
+                temp.append(j[1])
+        temp.sort()
+        labelSaver.append(list(temp))
+    dictResult = {}
+    for key in pairEdge:
+        temp = ", ".join(labelSaver.pop(0))
+        dictResult[tuple(key)] = temp
+    return dictResult
 
 
 def split_sort_string(inputString):
