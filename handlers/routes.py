@@ -4,8 +4,12 @@ import modules.dfa_minimization as dfa_min
 
 
 def configure_routes(app):
-    @app.route("/", methods=["GET", "POST"])
+    @app.route('/')
     def index():
+        return render_template('index.html')
+
+    @app.route("/aplikasi", methods=["GET", "POST"])
+    def aplikasi():
         if (request.method == "POST"):
             state = request.form["state"]
             alphabet = request.form["alphabet"]
@@ -64,6 +68,6 @@ def configure_routes(app):
                 "transitionTableMin": transitionTableMin,
                 "detailedDescriptionMin": detailedDescriptionMin,
             }
-            return render_template("index.html", **templateData)
+            return render_template("app.html", **templateData)
         else:
-            return render_template("index.html")
+            return render_template("app.html")

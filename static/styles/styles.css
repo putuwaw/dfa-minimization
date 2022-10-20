@@ -1,1 +1,17 @@
-/* style.css */
+.navbar {
+  background-color: #0d6efd;
+}
+#home {
+  background-image: url("https://cssauthor.com/wp-content/uploads/2017/02/Free-Blue-Color-Textured-Watercolor.jpg");
+}
+#opening {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+#profil {
+  background-color: #fff;
+  background-image: linear-gradient(#fdfdfd, #0d6efd);
+  padding-top: 3rem;
+  padding-bottom: 1rem;
+}

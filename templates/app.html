@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %} DFA Minimization {% endblock %}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-gradient shadow fixed-top">
+    <div class="container-lg">
+        <a class="navbar-brand" href="/">Minimisasi DFA</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="/">Beranda</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/aplikasi">Aplikasi</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<main class="container-lg" id="opening">
+    <h1 class="fs-3 fw-bold text-center">Minimisasi DFA dengan Metode Table Filling</h1>
+    <!-- Application Form -->
+    <form class="mt-3" action="" method="post">
+        <div class="mb-3">
+            <label for="state" class="form-label">Masukkan Q (state):</label>
+            <input type="text" class="form-control" name="state" id="state" aria-describedby="stateHelp" 
+                required autocomplete="off">
+            <div id="stateHelp" class="form-text">Pisahkan dengan tanda koma, contoh: q0, q1, q2</div>
+        </div>
+        <div class="mb-3">
+            <label for="alphabet" class="form-label">Masukkan &Sigma; (alfabet):</label>
+            <input type="text" class="form-control" name="alphabet" id="alphabet" aria-describedby="alphabetHelp" 
+                required autocomplete="off">
+            <div id="alphabetHelp" class="form-text">Pisahkan dengan tanda koma, contoh: a, b</div>
+        </div>
+        <div class="mb-3">
+            <label for="delta" class="form-label">Masukkan &delta; (fungsi transisi):</label>
+            <textarea class="form-control" name="delta" id="delta" rows="5"
+                placeholder="Contoh:&#10;q0 a q2&#10;q0 b q1&#10;q1 a q1&#10;q1 b q2&#10;q2 a q2&#10;q2 b q2" 
+                required autocomplete="off"></textarea>
+            <div id="deltaHelp" class="form-text">Masukkan dengan format <code>stateAwal alfabet stateAkhir</code>,
+                pisahkan dengan baris baru.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="initial" class="form-label">Masukkan initial state:</label>
+            <input type="text" name="initial" class="form-control" id="initial" aria-describedby="initialHelp" 
+                required autocomplete="off">
+            <div id="initialHelp" class="form-text">Contoh: q0</div>
+        </div>
+        <div class="mb-3">
+            <label for="final" class="form-label">Masukkan final state:</label>
+            <input type="text" name="final" class="form-control" id="final" aria-describedby="finalHelp" 
+                required autocomplete="off">
+            <div id="finalHelp" class="form-text">Pisahkan dengan tanda koma, contoh: q1, q2</div>
+        </div>
+        <button type="submit" name="calculate" class="btn btn-primary">Sederhanakan</button>
+    </form>
+    <!-- Result -->
+    {% if isSubmit %}
+    <section class="mt-3">
+        <!-- Before minimization -->
+        <section>
+            <h4 class="fs-4 fw-semibold">DFA Sebelum Minimisasi:</h4>
+            <h6 class="fs-5">Diagram transisi:</h6>
+            <!-- Transition diagram -->
+            <div class="w-100 max-w-3xl p-3">
+                <py-script>
+                    import networkx as nx
+                    import matplotlib.pyplot as plt
+    
+                    G = nx.DiGraph()
+                    G.add_edges_from({{edgeBM}})
+                    pos = nx.circular_layout(G)
+    
+                    colorMap = []
+                    initial = {{initialBM}}
+                    final = {{finalBM}}
+    
+                    for node in G:
+                        if node in initial:
+                            colorMap.append('green')
+                        elif node in final:
+                            colorMap.append('red')
+                        else:
+                            colorMap.append('white')
+    
+                    edgeLabel = {{edgeLabelBM}}
+    
+                    nx.draw(G, pos, node_size=1000, edgecolors='black', node_color=colorMap, with_labels=True)
+                    nx.draw_networkx_edge_labels(G, pos, edge_labels=edgeLabel, font_color='black')
+                    plt
+                </py-script>
+                <label for="">Keterangan</label>
+                <p>&#128994;: initial state</p>
+                <p>&#128308;: final state</p>
+            </div>
+            <!-- Transition table -->
+            <h6 class="fs-5">Tabel transisi:</h6>
+            <table class="table mt-3 w-25 table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col"> </th>
+                        {%- for a in alphabetBM -%}
+                            <th scope="col">{{a}}</th>
+                        {%- endfor -%}
+                    </tr>
+                </thead>
+                <tbody>
+                    {%- for i in transitionTableBM -%}
+                        <tr> 
+                            {%- for j in range(3) -%}
+                                {% if j % 3 == 0 %}
+                                    {% if i[j] in initialBM %}
+                                        <th scope="row">&rarr;{{i[j]}}</th>
+                                    {% else %}
+                                        {% if i[j] in finalBM %}
+                                            <th scope="row">*{{i[j]}}</th>
+                                        {% else %}
+                                            <th scope="row">{{i[j]}}</th>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                    <td>{{i[j]}}</td>
+                                {% endif %}
+                            {%- endfor -%}
+                        </tr>
+                    {%- endfor -%}
+                </tbody>
+            </table>
+            <!-- Detailed description -->
+            <h6 class="fs-5">Deskripsi detail:</h6>
+            <p class="lead mt-2">Q = {<span>{{", ".join(stateBM)}}</span>},
+                &Sigma; = {<span>{{", ".join(alphabetBM)}}</span>}, 
+                q<sub>0</sub> (start state) = <span>{{",".join(initialBM)}}</span>,
+                F = {<span>{{", ".join(finalBM)}}</span>} (final state), dan
+                &delta; : Q x &Sigma; &rarr; Q dimana
+                <table class="lead">
+                    <tbody>
+                        {%- for i in range(0, detailedDescriptionBM| length, 2) -%}
+                        <tr>
+                            <td>{{"".join(detailedDescriptionBM[i])}}</td>
+                            <td class="ps-3">{{"".join(detailedDescriptionBM[i+1])}}</td>
+                        </tr>
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+            </p>
+        </section>
+        <!-- After minimization -->
+        <section class="mt-3">
+            <h4 class="fs-4 fw-semibold">DFA Hasil Minimisasi:</h4>
+            <h6 class="fs-5">Diagram transisi:</h6>
+            <!-- Transition diagram -->
+            <div class="w-100 max-w-3xl p-3">
+                <py-script>
+                    import networkx as nx
+                    import matplotlib.pyplot as plt
+    
+                    plt.clf()
+                    G = nx.DiGraph()
+                    G.add_edges_from({{edgeMin}})
+                    pos = nx.circular_layout(G)
+    
+                    colorMap = []
+                    initial = {{initialMin}}
+                    final = {{finalMin}}
+    
+                    for node in G:
+                        if node in initial:
+                            colorMap.append('green')
+                        elif node in final:
+                            colorMap.append('red')
+                        else:
+                            colorMap.append('white')
+    
+                    edgeLabel = {{edgeLabelMin}}
+    
+                    nx.draw(G, pos, node_size=1000, edgecolors='black', node_color=colorMap, with_labels=True)
+                    nx.draw_networkx_edge_labels(G, pos, edge_labels=edgeLabel, font_color='black')
+                    plt
+                </py-script>
+                <label for="">Keterangan</label>
+                <p>&#128994;: initial state</p>
+                <p>&#128308;: final state</p>
+            </div>
+            <!-- Transition table -->
+            <h6 class="fs-5">Tabel transisi:</h6>
+            <table class="table mt-3 w-25 table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col"> </th>
+                        {%- for a in alphabetMin -%}
+                            <th scope="col">{{a}}</th>
+                        {%- endfor -%}
+                    </tr>
+                </thead>
+                <tbody>
+                    {%- for i in transitionTableMin -%}
+                        <tr> 
+                            {%- for j in range(3) -%}
+                                {% if j % 3 == 0 %}
+                                    {% if i[j] in initialMin %}
+                                        <th scope="row">&rarr;{{i[j]}}</th>
+                                    {% else %}
+                                        {% if i[j] in finalMin %}
+                                            <th scope="row">*{{i[j]}}</th>
+                                        {% else %}
+                                            <th scope="row">{{i[j]}}</th>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                    <td>{{i[j]}}</td>
+                                {% endif %}
+                            {%- endfor -%}
+                        </tr>
+                    {%- endfor -%}
+                </tbody>
+            </table>
+            <!-- Detailed description -->
+            <h6 class="fs-5">Deskripsi detail:</h6>
+            <p class="lead mt-2">Q = {<span>{{", ".join(stateMin)}}</span>},
+                &Sigma; = {<span>{{", ".join(alphabetMin)}}</span>}, 
+                q<sub>0</sub> (start state) = <span>{{",".join(initialMin)}}</span>,
+                F = {<span>{{", ".join(finalMin)}}</span>} (final state), dan
+                &delta; : Q x &Sigma; &rarr; Q dimana
+                <table class="lead">
+                    <tbody>
+                        {%- for i in range(0, detailedDescriptionMin| length, 2) -%}
+                        <tr>
+                            <td>{{"".join(detailedDescriptionMin[i])}}</td>
+                            <td class="ps-3">{{"".join(detailedDescriptionMin[i+1])}}</td>
+                        </tr>
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+            </p>
+        </section>
+    </section>
+    {% endif %}
+</main>
+{% endblock %}
